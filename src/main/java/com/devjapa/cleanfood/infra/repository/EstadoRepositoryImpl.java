@@ -5,9 +5,11 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devjapa.cleanfood.domain.exception.EntidadeNaoEncontradaException;
 import com.devjapa.cleanfood.domain.model.Estado;
 import com.devjapa.cleanfood.domain.repository.EstadoRepository;
 
@@ -35,8 +37,13 @@ public class EstadoRepositoryImpl implements EstadoRepository {
 	
 	@Override
 	@Transactional
-	public void remover(Estado estado) {
-		estado = buscar(estado.getId());
+	public void remover(Long estadoId) {
+		Estado estado = buscar(estadoId);
+		
+		if(estado == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
+		
 		manager.remove(estado);
 	}
 
