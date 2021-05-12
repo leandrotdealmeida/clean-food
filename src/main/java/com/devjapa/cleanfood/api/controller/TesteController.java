@@ -1,5 +1,8 @@
 package com.devjapa.cleanfood.api.controller;
 
+import static com.devjapa.cleanfood.infra.repository.spec.RestauranteSpecs.comFreteGratis;
+import static com.devjapa.cleanfood.infra.repository.spec.RestauranteSpecs.comNomeSemelhante;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -14,8 +17,6 @@ import com.devjapa.cleanfood.domain.model.Cozinha;
 import com.devjapa.cleanfood.domain.model.Restaurante;
 import com.devjapa.cleanfood.domain.repository.CozinhaRepository;
 import com.devjapa.cleanfood.domain.repository.RestauranteRepository;
-import com.devjapa.cleanfood.infra.repository.spec.RestauranteComFreteGratisSpec;
-import com.devjapa.cleanfood.infra.repository.spec.RestauranteComNomeSemelhanteSpec;
 
 @RestController
 @RequestMapping("/teste")
@@ -78,11 +79,13 @@ public class TesteController {
 	}
 	
 	@GetMapping(path = "/restaurante-com-frete-gratis")
-	public List<Restaurante> restauranteComFreteGratis(String nome) {
-		var comFreteGratis = new RestauranteComFreteGratisSpec();
-		var comNomeSemelhante = new RestauranteComNomeSemelhanteSpec(nome);
-		
-		return restauranteRepository.findAll(comFreteGratis.and(comNomeSemelhante));
+	public List<Restaurante> restauranteComFreteGratis(String nome) {	
+		return restauranteRepository.findComFreteGratis(nome);
+	}
+	
+	@GetMapping(path = "/restaurante-primeiro")
+	public Optional<Restaurante> restaurantePrimeiro(String nome) {	
+		return restauranteRepository.buscarPrimeiro();
 	}
 
 }
