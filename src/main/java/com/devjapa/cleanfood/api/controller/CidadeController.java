@@ -1,6 +1,7 @@
 package com.devjapa.cleanfood.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,45 +30,49 @@ public class CidadeController {
 	private CidadeRepository cidadeRepository;
 	
 	@Autowired
-	private CadastroCidadeService cidadeService;
+	private CadastroCidadeService cadastroCidadeService;
 
 	@GetMapping
 	public List<Cidade> listar() {
-		return cidadeRepository.listar();
+		return cidadeRepository.findAll();
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Cidade> buscar(@PathVariable Long id) {
-		Cidade cidade = cidadeRepository.buscar(id);
+	@GetMapping("/{cidadeId}")
+	public ResponseEntity<Cidade> buscar(@PathVariable Long cidadeId) {
+		Optional<Cidade> cidade = cidadeRepository.findById(cidadeId);
 
-		if (cidade == null) {
-			return ResponseEntity.noContent().build();
+		if (cidade != null) {
+			return  ResponseEntity.ok(cidade.get()); 
 		}
 
-		return ResponseEntity.ok(cidade);
+		return ResponseEntity.noContent().build();
 	}
 
 	@PostMapping
-	public ResponseEntity<Cidade> adicionar(@RequestBody Cidade cidade) {
+	public ResponseEntity<?> adicionar(@RequestBody Cidade cidade) {
 		try {
 
-			cidade = cidadeRepository.salvar(cidade);
-			return ResponseEntity.ok(cidade);
+			cidade = cadastroCidadeService.salvar(cidade);
+			
+			return ResponseEntity.status(HttpStatus.CREATED).body(cidade);
 
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().build();
+		} catch (EntidadeNaoEncontradaException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
 
-	@PutMapping
-	public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Cidade cidade) {
+	@PutMapping("/{cidadeId}")
+	public ResponseEntity<?> atualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade) {
 		try {
-			Cidade cidadeAtual = cidadeRepository.buscar(id);
+			// Podemos usar o orElse(null) também, que retorna a instância de cidade
+						// dentro do Optional, ou null, caso ele esteja vazio,
+						// mas nesse caso, temos a responsabilidade de tomar cuidado com NullPointerException
+			Cidade cidadeAtual = cidadeRepository.findById(cidadeId).orElse(null);
 
 			if (cidadeAtual != null) {
 				BeanUtils.copyProperties(cidade, cidadeAtual, "id");
 
-				cidadeAtual = cidadeRepository.salvar(cidadeAtual);
+				cidadeAtual = cadastroCidadeService.salvar(cidadeAtual);
 
 				return ResponseEntity.ok(cidadeAtual);
 			}
@@ -82,15 +87,15 @@ public class CidadeController {
 	@DeleteMapping("/{cidadeId}")
 	public ResponseEntity<Cozinha> remover(@PathVariable Long cidadeId) {
 		try {
-			cidadeService.exluir(cidadeId);
+			cadastroCidadeService.exluir(cidadeId);
 			return ResponseEntity.noContent().build();
+			
 		} catch (EntidadeNaoEncontradaException e) {
 			return ResponseEntity.notFound().build();
 			
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 		}
-
 	}
-
+	
 }
