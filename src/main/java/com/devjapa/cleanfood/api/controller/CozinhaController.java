@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.devjapa.cleanfood.api.model.CozinhasXmlWrapper;
-import com.devjapa.cleanfood.domain.exception.EntidadeEmUsoException;
 import com.devjapa.cleanfood.domain.exception.EntidadeNaoEncontradaException;
 import com.devjapa.cleanfood.domain.model.Cozinha;
 import com.devjapa.cleanfood.domain.repository.CozinhaRepository;
