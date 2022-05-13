@@ -3,7 +3,6 @@ package com.devjapa.cleanfood.api.controller;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,16 +43,9 @@ public class RestauranteController {
 	}
 
 	@GetMapping("/{restauranteId}")
-	public ResponseEntity<Restaurante> buscar(@PathVariable Long restauranteId) {
-		Optional<Restaurante> restaurante = restauranteRepository.findById(restauranteId);
+	public Restaurante buscar(@PathVariable Long restauranteId) {
+		return cadastroRestauranteService.buscarOuFalhar(restauranteId);
 
-		if (restaurante.isPresent()) {
-			
-			return ResponseEntity.ok(restaurante.get());
-			
-		}
-		return ResponseEntity.noContent().build();
-		
 	}
 
 	@PostMapping
