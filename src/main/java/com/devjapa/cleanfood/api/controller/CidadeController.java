@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devjapa.cleanfood.domain.exception.EntidadeNaoEncontradaException;
+import com.devjapa.cleanfood.domain.exception.NegocioException;
 import com.devjapa.cleanfood.domain.model.Cidade;
 import com.devjapa.cleanfood.domain.repository.CidadeRepository;
 import com.devjapa.cleanfood.domain.service.CadastroCidadeService;
@@ -50,12 +51,12 @@ public class CidadeController {
 			return ResponseEntity.status(HttpStatus.CREATED).body(cidade);
 
 		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			throw new NegocioException(e.getMessage());
 		}
 	}
 
 	@PutMapping("/{cidadeId}")
-	public Cidade atualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade) {
+	public ResponseEntity<?> atualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade) {
 		// dentro do Optional, ou null, caso ele esteja vazio,
 		// mas nesse caso, temos a responsabilidade de tomar cuidado com
 		// NullPointerException
@@ -63,7 +64,12 @@ public class CidadeController {
 
 		BeanUtils.copyProperties(cidade, cidadeAtual, "id");
 
-		return cadastroCidadeService.salvar(cidadeAtual);
+		try {
+
+			return ResponseEntity.ok(cadastroCidadeService.salvar(cidadeAtual));
+		} catch (EntidadeNaoEncontradaException e) {
+			throw new NegocioException(e.getMessage());
+		}
 
 	}
 	

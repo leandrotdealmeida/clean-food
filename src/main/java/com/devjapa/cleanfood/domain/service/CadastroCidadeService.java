@@ -10,7 +10,6 @@ import com.devjapa.cleanfood.domain.exception.EntidadeNaoEncontradaException;
 import com.devjapa.cleanfood.domain.model.Cidade;
 import com.devjapa.cleanfood.domain.model.Estado;
 import com.devjapa.cleanfood.domain.repository.CidadeRepository;
-import com.devjapa.cleanfood.domain.repository.EstadoRepository;
 
 @Service
 public class CadastroCidadeService {
@@ -23,7 +22,7 @@ public class CadastroCidadeService {
 	private CidadeRepository cidadeRepository;
 	
 	@Autowired
-	private EstadoRepository estadoRepository;	
+	private CadastroEstadoService cadastroEstadoService;
 	
 	
 	public Cidade buscarOuFalhar(Long cidadeId) {
@@ -33,10 +32,12 @@ public class CadastroCidadeService {
 	
 	public Cidade salvar(Cidade cidade) {
 		Long estadoId = cidade.getEstado().getId();
+		
+		Estado estado = cadastroEstadoService.buscarOuFalhar(estadoId);
 
-		Estado estado = estadoRepository.findById(estadoId)
-			.orElseThrow(() -> new EntidadeNaoEncontradaException(
-					String.format("Não existe cadastro de estado com código %d", estadoId)));
+//		Estado estado = estadoRepository.findById(estadoId)
+//			.orElseThrow(() -> new EntidadeNaoEncontradaException(
+//					String.format("Não existe cadastro de estado com código %d", estadoId)));
 		
 		cidade.setEstado(estado);
 		
