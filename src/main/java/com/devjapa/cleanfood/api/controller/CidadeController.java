@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devjapa.cleanfood.domain.exception.EntidadeNaoEncontradaException;
+import com.devjapa.cleanfood.domain.exception.EstadoNaoEncontradaException;
 import com.devjapa.cleanfood.domain.exception.NegocioException;
 import com.devjapa.cleanfood.domain.model.Cidade;
 import com.devjapa.cleanfood.domain.repository.CidadeRepository;
@@ -43,15 +43,13 @@ public class CidadeController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> adicionar(@RequestBody Cidade cidade) {
+	public Cidade adicionar(@RequestBody Cidade cidade) {
 		try {
 
-			cidade = cadastroCidadeService.salvar(cidade);
-			
-			return ResponseEntity.status(HttpStatus.CREATED).body(cidade);
+			return cadastroCidadeService.salvar(cidade);
 
-		} catch (EntidadeNaoEncontradaException e) {
-			throw new NegocioException(e.getMessage());
+		} catch (EstadoNaoEncontradaException e) {
+			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 
@@ -68,7 +66,7 @@ public class CidadeController {
 
 			return ResponseEntity.ok(cadastroCidadeService.salvar(cidadeAtual));
 		} catch (EntidadeNaoEncontradaException e) {
-			throw new NegocioException(e.getMessage());
+			throw new NegocioException(e.getMessage(), e);
 		}
 
 	}
