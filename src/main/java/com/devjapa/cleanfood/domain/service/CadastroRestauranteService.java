@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.devjapa.cleanfood.domain.exception.EntidadeEmUsoException;
 import com.devjapa.cleanfood.domain.exception.EntidadeNaoEncontradaException;
+import com.devjapa.cleanfood.domain.exception.RestauranteNaoEncontradaException;
 import com.devjapa.cleanfood.domain.model.Cozinha;
 import com.devjapa.cleanfood.domain.model.Restaurante;
 import com.devjapa.cleanfood.domain.repository.CozinhaRepository;
@@ -29,7 +30,7 @@ public class CadastroRestauranteService {
 		Long cozinhaId = restaurante.getCozinha().getId();
 		
 		Cozinha cozinha = cozinhaRepository.findById(cozinhaId)
-				.orElseThrow(() -> new EntidadeNaoEncontradaException(
+				.orElseThrow(() -> new RestauranteNaoEncontradaException(
 						String.format(MSG_RESTAURANTE_NAO_ENCONTRADA, cozinhaId)));
 			
 			restaurante.setCozinha(cozinha);
@@ -56,7 +57,7 @@ public class CadastroRestauranteService {
 		try {
 			restauranteRepository.deleteById(restauranteId);
 		} catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(String.format(MSG_RESTAURANTE_NAO_ENCONTRADA, restauranteId));
+			throw new RestauranteNaoEncontradaException(String.format(MSG_RESTAURANTE_NAO_ENCONTRADA, restauranteId));
 		}
 
 		catch (DataIntegrityViolationException e) {
@@ -65,7 +66,7 @@ public class CadastroRestauranteService {
 	}
 
 	public Restaurante buscarOuFalhar(Long restauranteId) {
-		return restauranteRepository.findById(restauranteId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format(MSG_RESTAURANTE_NAO_ENCONTRADA, restauranteId)));
+		return restauranteRepository.findById(restauranteId).orElseThrow(() -> new RestauranteNaoEncontradaException(String.format(MSG_RESTAURANTE_NAO_ENCONTRADA, restauranteId)));
 	}
 
 	
