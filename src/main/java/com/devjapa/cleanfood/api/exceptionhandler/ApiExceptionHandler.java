@@ -1,7 +1,5 @@
 package com.devjapa.cleanfood.api.exceptionhandler;
 
-import java.time.LocalDateTime;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +17,25 @@ import com.devjapa.cleanfood.domain.exception.NegocioException;
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	@ExceptionHandler(EntidadeNaoEncontradaException.class)
-	public ResponseEntity<?> tratarEntidadeNaoEncontrado(EntidadeNaoEncontradaException ex, WebRequest request) {
-		return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+	public ResponseEntity<?> handleEntidadeNaoEncontrado(EntidadeNaoEncontradaException ex, WebRequest request) {
+		
+		HttpStatus status = HttpStatus.NOT_FOUND;		
+		ProblemType problemType = ProblemType.ENTIDADE_NAO_ECONTRADA;
+		String detail = ex.getMessage();
+		
+		Problem problem = createProblemBuilder(status, problemType, detail).build();
+		
+		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
 	}
 	
 
 	@ExceptionHandler(EntidadeEmUsoException.class)
-	public ResponseEntity<?> tratarEntidadeEmUsoException(EntidadeEmUsoException ex, WebRequest request) {
+	public ResponseEntity<?> handleEntidadeEmUsoException(EntidadeEmUsoException ex, WebRequest request) {
 		return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT, request);
 	}
 	
 	@ExceptionHandler(NegocioException.class)
-	public ResponseEntity<?> tratarNegocioException(NegocioException ex, WebRequest request) {
+	public ResponseEntity<?> handleNegocioException(NegocioException ex, WebRequest request) {
 		return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 	}
 	
@@ -39,19 +44,30 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpStatus status, WebRequest request) {
 		
 		if(body == null) {
-		body = Problema.builder()
-				.dataHora(LocalDateTime.now())
-				.mensagem(status.getReasonPhrase())
+			body = Problem.builder()
+				.title(status.getReasonPhrase())
+				.status(status.value())
 				.build();
 		} else if (body instanceof String) {
-			body = Problema.builder()
-					.dataHora(LocalDateTime.now())
-					.mensagem((String) body)
+			body = Problem.builder()
+					.status(status.value())
+					.title((String) body)
 					.build();
 		}
 		
 		
 		return super.handleExceptionInternal(ex, body, headers, status, request);
+	}
+	
+	private Problem.ProblemBuilder createProblemBuilder(HttpStatus status, ProblemType problemType, 
+			String detail) {
+		
+		
+		return Problem.builder()
+				.status(status.value())
+				.type(problemType.getUri())
+				.title(problemType.getTitle())
+				.detail(detail);
 	}
 
 
